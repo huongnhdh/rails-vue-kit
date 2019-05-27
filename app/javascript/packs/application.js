@@ -21,3 +21,5 @@ import 'serviceworker-companion'
 
 import 'initializers/polyfills'
 import 'initializers/turbolinks'
+import '../stylesheets/application'
+
