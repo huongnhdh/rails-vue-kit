@@ -4,7 +4,7 @@
 NEXT: user management role feature for example
 
 ## Setup scss and Bulma
-[http://www.arfullight.me/article/17](http://www.arfullight.me/article/17)
+
 * Prerequisites:
 
 Let's install webpack before, let see how to setup at [@here](https://github.com/huongnhdh/rails-vue-kit/blob/master/readme_v1.md#upgrade-to-webpacker-4)
@@ -17,6 +17,7 @@ yarn add postcss-cssnext
 ```
 
 * The structure of stylesheets folder
+
 ```bash
 app/javascript/stylesheets
 ├── application.scss
@@ -27,8 +28,9 @@ app/javascript/stylesheets
 
 see at [Bulma-custom style](https://bulma.io/documentation/customize/with-webpack/#9-add-your-own-bulma-styles)
 
+* Edit file: `app/javascript/stylesheets/_custom_bulma.scss`
+
 ```sass
-// app/javascript/stylesheets/_custom_bulma.scss
 @charset "utf-8";
 
 // Import a Google Font
@@ -60,6 +62,8 @@ $input-shadow: none;
 @import "~bulma/bulma";
 ```
 
+* Edit: `app/javascript/stylesheets/application.scss`
+
 ```sass
 //application.scss
 @import "variables";
@@ -73,6 +77,7 @@ import '../stylesheets/application'
 ```
 
 * Edit `config/webpack/loaders/sass.js`
+
 ```javascript
 module.exports = {
   test: /\.scss$/,
