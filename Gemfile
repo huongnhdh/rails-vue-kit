@@ -22,6 +22,18 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
+gem 'actionmailer'
+
+# https://viblo.asia/p/gioi-thieu-gem-devise-amoG84YnGz8P
+# devise với 10 module cơ bản hỗ trợ việc quản lý đăng nhập của người dùng
+gem 'devise'
+gem 'omniauth' # for oauth
+# Pundit provides a set of helpers which guide you in leveraging regular Ruby
+# classes and object oriented design patterns to build a simple, robust and
+# scalable authorization system.
+#
+gem 'pundit'
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
 
