@@ -59,6 +59,14 @@ bin/webpack
 bin/rails runner "exit"
 ```
 
+5. Using postgreSQL
+
+```bash 
+# On Ubuntu 
+sudo apt-get install postgresql-client libpq5 libpq-dev 
+sudo gem install pg
+```
+
 ### Upgrade to Webpacker 4
 
 1. Update `Gemfile` to use new version:
