@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Be sure to restart your server when you modify this file.
 
 # Define an application-wide content security policy
@@ -24,12 +26,11 @@
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
 # Rails.application.config.content_security_policy_report_only = true
 
-  Rails.application.config.content_security_policy do |policy|
-    if Rails.env.development?
-      policy.script_src :self, :https, :unsafe_eval
-      policy.connect_src :self, :https, 'http://localhost:3035', 'ws://localhost:3035'
-    else
-      policy.script_src :self, :https
-    end
+Rails.application.config.content_security_policy do |policy|
+  if Rails.env.development?
+    policy.script_src :self, :https, :unsafe_eval
+    policy.connect_src :self, :https, 'http://localhost:3035', 'ws://localhost:3035'
+  else
+    policy.script_src :self, :https
   end
-
+end

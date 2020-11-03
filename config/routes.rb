@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
-  default_url_options :host => "localhost:3000"
+  default_url_options host: 'localhost:3000'
   devise_for :users
   root 'landing#index'
   get 'landing/index'

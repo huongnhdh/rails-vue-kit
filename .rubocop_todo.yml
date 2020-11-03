@@ -1,0 +1,53 @@
+Layout/HashAlignment:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Rails/UnknownEnv:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/StderrPuts:
+  Enabled: false
+
+Security/Open:
+  Enabled: false
+
+Rails/Presence:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/MixinUsage:
+  Enabled: false
+
+Rails/HttpStatus:
+  Enabled: false
+
+Rails/LexicallyScopedActionFilter:
+  Enabled: false
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Layout/ParameterAlignment:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Style/NumericLiterals:
+  Enabled: false

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -41,12 +43,12 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
-    domain: "gmail.com",
+    address: 'smtp.gmail.com',
+    domain: 'gmail.com',
     port: 587,
-    user_name: "apptest.line@gmail.com",
+    user_name: 'apptest.line@gmail.com',
     password: ENV['PWD_EMAIL_SERVICE'],
-    authentication: 'plain',
+    authentication: 'plain'
     # enable_starttls_auto: true
   }
   # Raises error for missing translations

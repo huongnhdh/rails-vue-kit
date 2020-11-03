@@ -1,16 +1,53 @@
-version: 2.1
-orbs:
-  ruby: circleci/ruby@0.1.2 
+version: 2
 
 jobs:
   build:
+    working_directory: ~/rails-vue-kit
     docker:
-      - image: circleci/ruby:2.6.3-stretch-node
-    executor: ruby/default
+      - image: circleci/ruby:2.6.3-node
+        environment:
+          RAILS_ENV: test
     steps:
+      - type: shell
+        name: 'Chatwork notify when start'
+        command: |-
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Starting release on production" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Starting release on staging" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          else
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Starting release on branch test" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          fi
       - checkout
-      - run:
-          name: Which bundler?
-          command: bundle -v
-      - ruby/bundle-install
-
+      - run: gem install bundler:2.0.1
+      - type: cache-restore
+        key: bundle-{{ checksum "Gemfile.lock" }}
+      - run: bundle install --path vendor/bundle
+      - type: cache-save
+        key: bundle-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+      - run: bundle exec rubocop
+      # Notify
+      - type: shell
+        name: 'Chatwork notify when start'
+        command: |-
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Production environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Staging environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          else
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Test environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          fi
+        when: on_success
+      - type: shell
+        name: Nofify error
+        command: |-
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Production\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Staging\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          else
+            curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Test\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
+          fi
+        when: on_fail
