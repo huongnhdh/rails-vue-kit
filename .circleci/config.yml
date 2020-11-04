@@ -7,35 +7,58 @@ jobs:
       - image: circleci/ruby:2.6.3-node
         environment:
           RAILS_ENV: test
+          CW_LMP1_ROOM: "200427540"
+          CW_API_TOKEN: "2368e308d764aaf23bb1874dc61160f2"
     steps:
       - type: shell
         name: 'Define ChatWork notification'
         command: |-
           cat >> $BASH_ENV <<EOL
             function send {
-              WHEN=$1
+              when=\$1
               # messages by status
-              if [ "$WHEN" == "start" ]; then
-                STATUS_MESSAGE="starting..."
-              elif [ "$WHEN" == "finished" ]; then
-                STATUS_MESSAGE="finished (cracker)"
-              elif [ "$WHEN" == "failed" ]; then
-                STATUS_MESSAGE="failed (sweat)"
-              fi
+              case \$when in
+                "start")
+                  status_msg="starting..."
+                  ;;
+                "finished")
+                  status_msg="finished (cracker)"
+                  ;;
+                "failed")
+                  status_msg="failed (sweat)"
+                  ;;
+                *)
+                  echo "No process for status: \$when"
+                  ;;
+              esac
+              #
               # messages by branch
-              if [ "${CIRCLE_BRANCH}" == "master" ]; then
-                ENVIRONMENT=production
-              elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
-                ENVIRONMENT=staging
-              else
-                ENVIRONMENT=test
+              case \${CIRCLE_BRANCH} in
+                "master")
+                  deploy_env=production
+                  ;;
+                "delivery")
+                  deploy_env=staging
+                  ;;
+                "develop")
+                  deploy_env=inter
+                  ;;
+                *)
+                  echo "This branch \${CIRCLE_BRANCH} is not deploy branch"
+                  ;;
+              esac
+              set
+              if  [ -n "\$deploy_env" ] && [ -n "\$status_msg" ]; then
+                body_msg="LMPOne deploy on 「\$deploy_env」 environment was \$status_msg"
+                curl -X POST -H "X-ChatWorkToken: \${CW_API_TOKEN}" -d "body=[info]\$body_msg[/info]&self_unread=0" "https://api.chatwork.com/v2/rooms/\${CW_LMP1_ROOM}/messages"
+                echo
               fi
-              BODY_MESSAGE="Deploy on \"$ENVIRONMENT environment\" was $STATUS_MESSAGE"
-              curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=$BODY_MESSAGE&self_unread=0" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
             }
           EOL
           source $BASH_ENV
+
       - type: shell
+        name: "notify for start"
         command: send "start"
       - checkout
       - run: gem install bundler:2.0.1
@@ -47,30 +70,9 @@ jobs:
         paths:
           - vendor/bundle
       - run: bundle exec rubocop
-      # Notify
-      # - type: shell
-      #   name: 'Chatwork Nofify when deploy finished'
-      #   command: |-
-      #     if [ "${CIRCLE_BRANCH}" == "master" ]; then
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Production environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Staging environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     else
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Released Test environment" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     fi
-      #   when: on_success
-      # - type: shell
-      #   name: Chatwork Nofify when deploy error
-      #   command: |-
-      #     if [ "${CIRCLE_BRANCH}" == "master" ]; then
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Production\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     elif [ "${CIRCLE_BRANCH}" == "delivery" ]; then
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Staging\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     else
-      #       curl -X POST -H "X-ChatWorkToken: ${CHATWORK_TOKEN}" -d "body=Release on \"Test\" has error" "https://api.chatwork.com/v2/rooms/${CHATWORK_LFTV_ROOM_ID}/messages"
-      #     fi
-      #   when: on_fail
-
-
-
-
+      - type: shell
+        name: "notify for finished"
+        command: send "finished"
+      - type: shell
+        name: "notify for failed"
+        command: send "failed"
